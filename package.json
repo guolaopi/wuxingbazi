@@ -1,0 +1,24 @@
+{
+  "name": "wuxingbazi",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run --threads false"
+  },
+  "dependencies": {
+    "lunisolar": "^2.6.0",
+    "vue": "^3.4.38"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.6.2",
+    "vite": "^4.5.3",
+    "vitest": "^0.34.6"
+  },
+  "engines": {
+    "node": ">=14.18.0"
+  }
+}
