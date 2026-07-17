@@ -19,6 +19,9 @@ npm run dev
 npm run build
 ```
 
+构建完成后会自动清空 `docs`、复制 `dist` 的全部内容，并将
+`docs/index.html` 中的 `/assets/` 资源路径改为 `/wuxingbazi/assets/`，用于 GitHub Pages 发布。
+
 运行测试：
 
 ```bash
