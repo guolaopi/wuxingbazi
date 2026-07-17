@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  BAZI_PATTERN_CATEGORIES,
   BAZI_PATTERN_DEFINITIONS,
   detectBaziPatterns,
+  groupBaziPatterns,
 } from './patterns'
 
 const TEN_GOD_CATEGORIES = {
@@ -28,55 +30,121 @@ function createCounts(values = {}) {
   )
 }
 
-function detect(values, options = {}) {
+function detect(values) {
   return detectBaziPatterns({
     tenGodCounts: createCounts(values),
-    dayStemName: options.dayStemName ?? '庚',
-    branchNames: options.branchNames ?? [],
-    gender: options.gender ?? 'male',
   }).map(({ name }) => name)
 }
 
+const pairCases = [
+  ['杀印相生', [
+    { 七杀: 1, 正印: 1 },
+    { 七杀: 1, 偏印: 1 },
+  ]],
+  ['官印相生', [
+    { 正官: 1, 正印: 1 },
+    { 正官: 1, 偏印: 1 },
+  ]],
+  ['食神生财', [
+    { 食神: 1, 正财: 1 },
+    { 食神: 1, 偏财: 1 },
+  ]],
+  ['伤官生财', [
+    { 伤官: 1, 正财: 1 },
+    { 伤官: 1, 偏财: 1 },
+  ]],
+  ['财生官杀', [
+    { 正财: 1, 正官: 1 },
+    { 正财: 1, 七杀: 1 },
+    { 偏财: 1, 正官: 1 },
+    { 偏财: 1, 七杀: 1 },
+  ]],
+  ['食神制杀', [{ 食神: 1, 七杀: 1 }]],
+  ['伤官见官', [{ 伤官: 1, 正官: 1 }]],
+  ['比劫夺财', [
+    { 比肩: 1, 正财: 1 },
+    { 比肩: 1, 偏财: 1 },
+    { 劫财: 1, 正财: 1 },
+    { 劫财: 1, 偏财: 1 },
+  ]],
+  ['财星坏印', [
+    { 正财: 1, 正印: 1 },
+    { 正财: 1, 偏印: 1 },
+    { 偏财: 1, 正印: 1 },
+    { 偏财: 1, 偏印: 1 },
+  ]],
+  ['枭神夺食', [{ 偏印: 1, 食神: 1 }]],
+  ['比劫帮身', [
+    { 比肩: 1 },
+    { 劫财: 1 },
+  ]],
+  ['印星护身', [
+    { 正印: 1 },
+    { 偏印: 1 },
+  ]],
+  ['官星护财', [
+    { 正官: 1, 正财: 1 },
+    { 正官: 1, 偏财: 1 },
+    { 七杀: 1, 正财: 1 },
+    { 七杀: 1, 偏财: 1 },
+  ]],
+  ['官杀混杂', [{ 正官: 1, 七杀: 1 }]],
+  ['伤官配印', [{ 伤官: 1, 正印: 1 }]],
+  ['劫财抗杀', [{ 劫财: 1, 七杀: 1 }]],
+]
+
 describe('八字格局定义', () => {
-  it('包含表格中的全部 19 个唯一格局', () => {
+  it('按表格保存四类共 16 个唯一格局', () => {
     const names = BAZI_PATTERN_DEFINITIONS.map(({ name }) => name)
-    expect(names).toHaveLength(19)
-    expect(new Set(names).size).toBe(19)
+
+    expect(BAZI_PATTERN_CATEGORIES).toEqual([
+      '生类', '克/制类', '同/助类', '混杂类',
+    ])
+    expect(names).toHaveLength(16)
+    expect(new Set(names).size).toBe(16)
     expect(names).toEqual([
-      '官印相生', '财官双美', '食神佩印', '食神生财', '伤官生财',
-      '食神制杀', '羊刃驾杀', '杀印相生', '伤官配印', '财滋弱杀',
-      '伤官见官', '枭神夺食', '群比夺财', '官杀混杂', '财星坏印',
-      '比劫争夫', '伤官合杀', '弃命从财', '弃命从杀',
+      '杀印相生', '官印相生', '食神生财', '伤官生财', '财生官杀',
+      '食神制杀', '伤官见官', '比劫夺财', '财星坏印', '枭神夺食',
+      '比劫帮身', '印星护身', '官星护财',
+      '官杀混杂', '伤官配印', '劫财抗杀',
     ])
   })
 
-  it('同一组合无论出现多少次都只返回一次', () => {
-    const names = detect({ 伤官: 3, 偏财: 4 })
+  it.each(pairCases)('%s 支持表中列出的每一种十神组合', (name, combinations) => {
+    combinations.forEach((combination) => {
+      expect(detect(combination)).toContain(name)
+    })
+  })
+
+  it('同一格局的多个组合和重复十神同时存在时只返回一次', () => {
+    const names = detect({ 伤官: 3, 正财: 2, 偏财: 4 })
+
     expect(names.filter((name) => name === '伤官生财')).toHaveLength(1)
   })
 
-  it('支持财星泛指、女性限定和羊刃地支条件', () => {
-    const malePatterns = detect({ 劫财: 1, 正财: 1, 正官: 1, 七杀: 1 })
-    expect(malePatterns).toContain('群比夺财')
-    expect(malePatterns).not.toContain('比劫争夫')
-
-    const femalePatterns = detect(
-      { 劫财: 1, 正官: 1 },
-      { gender: 'female' },
-    )
-    expect(femalePatterns).toContain('比劫争夫')
-
-    const bladePatterns = detect(
-      { 七杀: 1 },
-      { dayStemName: '甲', branchNames: ['卯'] },
-    )
-    expect(bladePatterns).toContain('羊刃驾杀')
+  it('伤官配印特指正印，不由偏印触发', () => {
+    expect(detect({ 伤官: 1, 正印: 1 })).toContain('伤官配印')
+    expect(detect({ 伤官: 1, 偏印: 1 })).not.toContain('伤官配印')
   })
 
-  it('满盘条件只在全部十神属于目标类别时成立', () => {
-    expect(detect({ 正财: 8, 偏财: 7 })).toContain('弃命从财')
-    expect(detect({ 正财: 8, 偏财: 6, 比肩: 1 })).not.toContain('弃命从财')
-    expect(detect({ 正官: 7, 七杀: 8 })).toContain('弃命从杀')
+  it('不再返回表格之外的旧格局', () => {
+    const names = BAZI_PATTERN_DEFINITIONS.map(({ name }) => name)
+    const oldNames = [
+      '财官双美', '食神佩印', '羊刃驾杀', '财滋弱杀',
+      '群比夺财', '比劫争夫', '伤官合杀', '弃命从财', '弃命从杀',
+    ]
+
+    oldNames.forEach((name) => expect(names).not.toContain(name))
+  })
+
+  it('按组合类型对命中的格局分组', () => {
+    const patterns = detectBaziPatterns({
+      tenGodCounts: createCounts({ 劫财: 1, 七杀: 1 }),
+    })
+    const groups = groupBaziPatterns(patterns)
+
+    expect(Object.keys(groups)).toEqual(BAZI_PATTERN_CATEGORIES)
+    expect(groups['同/助类'].map(({ name }) => name)).toContain('比劫帮身')
+    expect(groups['混杂类'].map(({ name }) => name)).toContain('劫财抗杀')
   })
 })
-

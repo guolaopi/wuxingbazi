@@ -148,15 +148,20 @@ describe('calculateBazi', () => {
     })
     expect(result.tenGodTotal).toBe(15)
     expect(result.patterns.map(({ name }) => name)).toEqual([
-      '财官双美',
+      '杀印相生',
+      '官印相生',
       '食神生财',
       '伤官生财',
+      '财生官杀',
       '食神制杀',
-      '财滋弱杀',
       '伤官见官',
+      '比劫夺财',
+      '财星坏印',
       '枭神夺食',
+      '比劫帮身',
+      '印星护身',
+      '官星护财',
       '官杀混杂',
-      '伤官合杀',
     ])
   })
 

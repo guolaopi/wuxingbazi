@@ -1,162 +1,141 @@
 export const BAZI_PATTERN_CATEGORIES = Object.freeze([
-    "吉格 / 顺境类",
-    "凶格 / 逆境类",
-    "杂格 / 可变类",
+    "生类",
+    "克/制类",
+    "同/助类",
+    "混杂类",
 ]);
 
 const definitions = [
     {
-        category: "吉格 / 顺境类",
+        category: "生类",
+        name: "杀印相生",
+        involved: "七杀 & 正印, 七杀 & 偏印",
+        requirements: [["七杀"], ["正印", "偏印"]],
+        description:
+            "化压力为权柄，压力逼出学识与地位，化敌为友",
+    },
+    {
+        category: "生类",
         name: "官印相生",
-        involved: "正官 & 正印",
-        requirements: [["正官"], ["正印"]],
+        involved: "正官 & 正印, 正官 & 偏印",
+        requirements: [["正官"], ["正印", "偏印"]],
         description:
-            "贵气之格，主清贵、廉洁、有权威，品行端正，易得长辈提携或官方赏识。",
+            "官星得印护，清贵权威，事业平稳，易得贵人提携",
     },
     {
-        category: "吉格 / 顺境类",
-        name: "财官双美",
-        involved: "正官 & 正财",
-        requirements: [["正官"], ["正财"]],
-        description:
-            "富贵之格，主守法守信，通过正当事业致富，家庭事业两相宜。",
-    },
-    {
-        category: "吉格 / 顺境类",
-        name: "食神佩印",
-        involved: "食神 & 正印",
-        requirements: [["食神"], ["正印"]],
-        description:
-            "贵格，主温文尔雅，才华得以正用，在文化、教育领域易获声望。",
-    },
-    {
-        category: "吉格 / 顺境类",
+        category: "生类",
         name: "食神生财",
-        involved: "食神 & 正财",
-        requirements: [["食神"], ["正财"]],
+        involved: "食神 & 正财, 食神 & 偏财",
+        requirements: [["食神"], ["正财", "偏财"]],
         description:
-            "富格，主以技艺、口才生财，财源安稳，是稳健的创业者或专业人士。",
+            "才华与技艺稳定变现，细水长流，稳健生财",
     },
     {
-        category: "吉格 / 顺境类",
+        category: "生类",
         name: "伤官生财",
-        involved: "伤官 & 偏财",
-        requirements: [["伤官"], ["偏财"]],
+        involved: "伤官 & 正财, 伤官 & 偏财",
+        requirements: [["伤官"], ["正财", "偏财"]],
         description:
-            "富格，主以智谋、创新求财，思维活跃，善于发现商机，能获暴利。",
+            "凭口才、创意、魄力开拓财源，求财主动，爆发力强",
     },
     {
-        category: "吉格 / 顺境类",
+        category: "生类",
+        name: "财生官杀",
+        involved:
+            "正财 & 正官, 正财 & 七杀, 偏财 & 正官, 偏财 & 七杀",
+        requirements: [["正财", "偏财"], ["正官", "七杀"]],
+        description:
+            "以财养官，用资源换取地位，或因妻得贵",
+    },
+    {
+        category: "克/制类",
         name: "食神制杀",
         involved: "食神 & 七杀",
         requirements: [["食神"], ["七杀"]],
         description:
-            "大贵之格，主以智谋、技艺驾驭权威与压力，化杀为权，在高压领域成就非凡。",
+            "以智谋化解危机，用才华驾驭压力，能力挽狂澜",
     },
     {
-        category: "吉格 / 顺境类",
-        name: "羊刃驾杀",
-        involved: "七杀 & 羊刃",
-        requirements: [["七杀"], ["羊刃"]],
-        description:
-            "武贵之格，主刚猛、权威，羊刃与七杀相互制约，反成大器，多成就于竞争激烈的环境。",
-    },
-    {
-        category: "吉格 / 顺境类",
-        name: "杀印相生",
-        involved: "七杀 & 正印",
-        requirements: [["七杀"], ["正印"]],
-        description:
-            "化杀为权之格，主有力、有谋略，七杀的压力被正印转化，变为学识与权威。",
-    },
-    {
-        category: "吉格 / 顺境类",
-        name: "伤官配印",
-        involved: "伤官 & 正印",
-        requirements: [["伤官"], ["正印"]],
-        description:
-            "贵格，主才华横溢而不张扬，叛逆被正印约束，使才华循正途发挥。",
-    },
-    {
-        category: "吉格 / 顺境类",
-        name: "财滋弱杀",
-        involved: "偏财 & 七杀",
-        requirements: [["偏财"], ["七杀"]],
-        description:
-            "富而后贵之格，以财富滋养七杀权威，用金钱或资源换取地位与权力。",
-    },
-    {
-        category: "凶格 / 逆境类",
+        category: "克/制类",
         name: "伤官见官",
         involved: "伤官 & 正官",
         requirements: [["伤官"], ["正官"]],
         description:
-            "大凶之格，主悖逆、官非、口舌，挑战规则与权威，事业多阻，女命不利婚姻。",
+            "叛逆与规则冲突，易生口舌是非、官非，挑战权威",
     },
     {
-        category: "凶格 / 逆境类",
+        category: "克/制类",
+        name: "比劫夺财",
+        involved:
+            "比肩 & 正财, 比肩 & 偏财, 劫财 & 正财, 劫财 & 偏财",
+        requirements: [["比肩", "劫财"], ["正财", "偏财"]],
+        description:
+            "兄弟朋友分财，合伙易吃亏，开销大难储蓄",
+    },
+    {
+        category: "克/制类",
+        name: "财星坏印",
+        involved:
+            "正财 & 正印, 正财 & 偏印, 偏财 & 正印, 偏财 & 偏印",
+        requirements: [["正财", "偏财"], ["正印", "偏印"]],
+        description:
+            "因财失义，贪图利益损害名声、放弃原则",
+    },
+    {
+        category: "克/制类",
         name: "枭神夺食",
         involved: "偏印 & 食神",
         requirements: [["偏印"], ["食神"]],
         description:
-            "大凶之格，主困顿、灾病，才思受堵，福气被克，易有饮食问题、精神抑郁等。",
+            "思虑过多，福气被夺，才华受困，事倍功半",
     },
     {
-        category: "凶格 / 逆境类",
-        name: "群比夺财",
-        involved: "劫财 & 财星",
-        requirements: [["劫财"], ["正财", "偏财"]],
+        category: "同/助类",
+        name: "比劫帮身",
+        involved: "比肩 & 日主, 劫财 & 日主",
+        requirements: [["比肩", "劫财"], ["日主"]],
         description:
-            "破格，主破财、克妻或克父，易因合作、担保等事导致财富被分夺。",
+            "朋友、兄弟姐妹共同分担压力，合作共赢",
     },
     {
-        category: "凶格 / 逆境类",
+        category: "同/助类",
+        name: "印星护身",
+        involved: "正印 & 日主, 偏印 & 日主",
+        requirements: [["正印", "偏印"], ["日主"]],
+        description:
+            "有贵人提携，学历证书庇护，内心有安全感",
+    },
+    {
+        category: "同/助类",
+        name: "官星护财",
+        involved: "正官 & 财星, 七杀 & 财星",
+        requirements: [["正官", "七杀"], ["正财", "偏财"]],
+        description:
+            "地位守护财富，或配偶约束钱财不乱花",
+    },
+    {
+        category: "混杂类",
         name: "官杀混杂",
         involved: "正官 & 七杀",
         requirements: [["正官"], ["七杀"]],
         description:
-            "浊格，主心性不定、事业驳杂、感情混乱，女命尤主婚姻不顺。",
+            "多个领导多头管理，事业方向摇摆，感情复杂",
     },
     {
-        category: "凶格 / 逆境类",
-        name: "财星坏印",
-        involved: "偏财 & 正印",
-        requirements: [["偏财"], ["正印"]],
+        category: "混杂类",
+        name: "伤官配印",
+        involved: "伤官 & 正印",
+        requirements: [["伤官"], ["正印"]],
         description:
-            "破格，主贪财毁誉、背信弃义，为利益放弃原则，损害贵人运。",
+            "才华被学识与贵气收服，变得稳重而有深度",
     },
     {
-        category: "凶格 / 逆境类",
-        name: "比劫争夫",
-        involved: "劫财 & 正官",
-        requirements: [["劫财"], ["正官"]],
-        gender: "female",
+        category: "混杂类",
+        name: "劫财抗杀",
+        involved: "劫财 & 七杀",
+        requirements: [["劫财"], ["七杀"]],
         description:
-            "婚姻破格，主丈夫被夺，情路竞争，易遇第三者。",
-    },
-    {
-        category: "杂格 / 可变类",
-        name: "伤官合杀",
-        involved: "伤官 & 七杀",
-        requirements: [["伤官"], ["七杀"]],
-        description:
-            "以凶制凶之格，主智慧、权威与手段，用才智合制七杀凶暴，成败起伏大。",
-    },
-    {
-        category: "杂格 / 可变类",
-        name: "弃命从财",
-        involved: "日主极弱 & 满盘财星",
-        allTenGodsIn: ["正财", "偏财"],
-        description:
-            "从格，主大富，日主放弃自身属性顺从财星，能获巨大财富，但六亲缘薄。",
-    },
-    {
-        category: "杂格 / 可变类",
-        name: "弃命从杀",
-        involved: "日主极弱 & 满盘官杀",
-        allTenGodsIn: ["正官", "七杀"],
-        description:
-            "从格，主大贵，日主顺从官杀旺势，能获极高地位与权威，但心性压力巨大。",
+            "兄弟联手抵御大压力，合作攻坚克难",
     },
 ];
 
@@ -164,66 +143,36 @@ export const BAZI_PATTERN_DEFINITIONS = Object.freeze(
     definitions.map((definition) => Object.freeze(definition)),
 );
 
-const YANG_BLADE_BRANCH_BY_DAY_STEM = Object.freeze({
-    甲: "卯",
-    乙: "寅",
-    丙: "午",
-    丁: "巳",
-    戊: "午",
-    己: "巳",
-    庚: "酉",
-    辛: "申",
-    壬: "子",
-    癸: "亥",
-});
+function getCountedTenGods(tenGodCounts = {}) {
+    return Object.values(tenGodCounts ?? {}).flatMap((category) =>
+        Object.entries(category ?? {}).map(([name, count = {}]) => {
+            const total = Number(count?.total) || 0;
+            const sourceTotal =
+                (Number(count?.heavenlyStems) || 0) +
+                (Number(count?.hiddenStems) || 0);
 
-function getCountedTenGods(tenGodCounts) {
-    return Object.values(tenGodCounts).flatMap((category) =>
-        Object.entries(category).map(([name, count]) => ({
-            name,
-            total: count.total,
-        })),
+            return {
+                name,
+                total: Math.max(total, sourceTotal),
+            };
+        }),
     );
 }
 
-export function detectBaziPatterns({
-    tenGodCounts,
-    dayStemName,
-    branchNames,
-    gender,
-}) {
-    const countedTenGods = getCountedTenGods(tenGodCounts);
+export function detectBaziPatterns({ tenGodCounts = {} } = {}) {
     const presentTraits = new Set(
-        countedTenGods
+        getCountedTenGods(tenGodCounts)
             .filter(({ total }) => total > 0)
             .map(({ name }) => name),
     );
-    const bladeBranch = YANG_BLADE_BRANCH_BY_DAY_STEM[dayStemName];
-    if (bladeBranch && branchNames.includes(bladeBranch)) {
-        presentTraits.add("羊刃");
-    }
+    // 日主不参与十神统计，但始终是“比劫帮身/印星护身”的固定一方。
+    presentTraits.add("日主");
 
-    return BAZI_PATTERN_DEFINITIONS.filter((pattern) => {
-        if (pattern.gender && pattern.gender !== gender) return false;
-
-        if (pattern.allTenGodsIn) {
-            const total = countedTenGods.reduce(
-                (sum, tenGod) => sum + tenGod.total,
-                0,
-            );
-            return (
-                total > 0 &&
-                countedTenGods.every(
-                    ({ name, total: count }) =>
-                        count === 0 || pattern.allTenGodsIn.includes(name),
-                )
-            );
-        }
-
-        return pattern.requirements.every((alternatives) =>
+    return BAZI_PATTERN_DEFINITIONS.filter((pattern) =>
+        pattern.requirements.every((alternatives) =>
             alternatives.some((trait) => presentTraits.has(trait)),
-        );
-    });
+        ),
+    );
 }
 
 export function groupBaziPatterns(patterns) {
@@ -234,4 +183,3 @@ export function groupBaziPatterns(patterns) {
         ]),
     );
 }
-
