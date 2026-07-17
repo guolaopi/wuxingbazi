@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import {
     ELEMENTS,
     PILLAR_KEYS,
@@ -7,6 +7,12 @@ import {
     calculateBazi,
     daysInMonth,
 } from "./lib/bazi";
+import {
+    PATTERN_REFERENCE_GROUPS,
+    QUICK_REFERENCE_ELEMENTS,
+    TEN_GOD_REFERENCE_ROWS,
+    WUXING_REFERENCE_ROWS,
+} from "./lib/quick-reference";
 import { getInitialFormValues } from "./lib/query";
 
 const now = new Date();
@@ -21,13 +27,23 @@ const day = ref(initialValues.day);
 const hour = ref(initialValues.hour);
 const result = ref(null);
 const errorMessage = ref("");
+const toastMessage = ref("");
+const resultSection = ref(null);
+const isSavingImage = ref(false);
+const quickReferenceTrigger = ref(null);
+const quickReferenceDialog = ref(null);
+const quickReferenceCloseButton = ref(null);
+const isQuickReferenceOpen = ref(false);
+let toastTimer;
+let quickReferenceReturnFocus;
+let bodyScrollLock;
 
 const years = Array.from(
     { length: YEAR_RANGE.max - YEAR_RANGE.min + 1 },
     (_, index) => YEAR_RANGE.min + index
 );
 const months = Array.from({ length: 12 }, (_, index) => index + 1);
-const hours = Array.from({ length: 23 }, (_, index) => index + 1);
+const hours = Array.from({ length: 24 }, (_, index) => index);
 const dayOptions = computed(() =>
     Array.from(
         { length: daysInMonth(year.value, month.value) },
@@ -71,7 +87,23 @@ watch([year, month], () => {
     if (day.value > maximumDay) day.value = maximumDay;
 });
 
-function calculate() {
+function showToast(message) {
+    toastMessage.value = message;
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+        toastMessage.value = "";
+    }, 2000);
+}
+
+onBeforeUnmount(() => {
+    window.clearTimeout(toastTimer);
+    if (quickReferenceDialog.value?.open) {
+        quickReferenceDialog.value.close();
+    }
+    restorePageScroll();
+});
+
+async function calculate() {
     errorMessage.value = "";
 
     try {
@@ -82,6 +114,10 @@ function calculate() {
             hour: hour.value,
             gender: gender.value,
         });
+        await nextTick();
+        if (typeof window !== "undefined") {
+            showToast("测算结果请滑动页面查看");
+        }
     } catch (error) {
         result.value = null;
         errorMessage.value =
@@ -89,10 +125,223 @@ function calculate() {
     }
 }
 
+function lockPageScroll() {
+    if (bodyScrollLock || typeof document === "undefined") return;
+
+    const body = document.body;
+    const scrollbarWidth = Math.max(
+        0,
+        window.innerWidth - document.documentElement.clientWidth
+    );
+    const currentPaddingRight =
+        Number.parseFloat(window.getComputedStyle(body).paddingRight) || 0;
+
+    bodyScrollLock = {
+        scrollY: window.scrollY,
+        position: body.style.position,
+        top: body.style.top,
+        left: body.style.left,
+        right: body.style.right,
+        width: body.style.width,
+        overflow: body.style.overflow,
+        paddingRight: body.style.paddingRight,
+    };
+
+    body.style.position = "fixed";
+    body.style.top = `-${bodyScrollLock.scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+        body.style.paddingRight = `${currentPaddingRight + scrollbarWidth}px`;
+    }
+}
+
+function restorePageScroll() {
+    if (!bodyScrollLock || typeof document === "undefined") return;
+
+    const body = document.body;
+    const { scrollY, ...styles } = bodyScrollLock;
+
+    Object.assign(body.style, styles);
+    bodyScrollLock = null;
+    window.scrollTo(0, scrollY);
+}
+
+async function openQuickReference() {
+    const dialog = quickReferenceDialog.value;
+    if (!dialog || dialog.open) return;
+
+    quickReferenceReturnFocus = document.activeElement;
+    isQuickReferenceOpen.value = true;
+    lockPageScroll();
+
+    try {
+        dialog.showModal();
+        await nextTick();
+        quickReferenceCloseButton.value?.focus();
+    } catch (error) {
+        console.error("打开速查弹窗失败", error);
+        isQuickReferenceOpen.value = false;
+        restorePageScroll();
+        showToast("速查弹窗打开失败，请稍后重试");
+    }
+}
+
+function closeQuickReference() {
+    if (quickReferenceDialog.value?.open) {
+        quickReferenceDialog.value.close();
+        return;
+    }
+
+    handleQuickReferenceClosed();
+}
+
+function handleQuickReferenceBackdrop(event) {
+    if (event.target !== event.currentTarget) return;
+
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const clickedInsideDialog =
+        event.clientX >= bounds.left &&
+        event.clientX <= bounds.right &&
+        event.clientY >= bounds.top &&
+        event.clientY <= bounds.bottom;
+
+    if (!clickedInsideDialog) closeQuickReference();
+}
+
+function handleQuickReferenceClosed() {
+    const returnFocus = quickReferenceReturnFocus || quickReferenceTrigger.value;
+
+    isQuickReferenceOpen.value = false;
+    quickReferenceReturnFocus = null;
+    restorePageScroll();
+    nextTick(() => returnFocus?.focus?.());
+}
+
+function getReferenceCellLines(value) {
+    return Array.isArray(value) ? value : [value];
+}
+
+function getTendencyClass(tendency) {
+    return tendency.includes("凶")
+        ? "quick-reference-tendency-negative"
+        : "quick-reference-tendency-positive";
+}
+
+function canvasToBlob(canvas) {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+            if (blob) {
+                resolve(blob);
+                return;
+            }
+
+            reject(new Error("无法生成图片文件"));
+        }, "image/png");
+    });
+}
+
+function getResultImageFileName() {
+    const safeDateText = (result.value?.dateText || "命盘结果")
+        .trim()
+        .replace(/[\\/:*?"<>|\s]+/g, "-");
+    return `五行八字命盘-${safeDateText}.png`;
+}
+
+async function saveResultAsImage() {
+    if (!resultSection.value || isSavingImage.value) return;
+
+    isSavingImage.value = true;
+
+    try {
+        await nextTick();
+        if (document.fonts?.ready) await document.fonts.ready;
+
+        const { default: html2canvas } = await import("html2canvas");
+        const exportViewportWidth = Math.max(
+            1200,
+            document.documentElement.clientWidth
+        );
+        const canvas = await html2canvas(resultSection.value, {
+            backgroundColor: "#f3efe6",
+            logging: false,
+            scale: 1.5,
+            useCORS: true,
+            windowWidth: exportViewportWidth,
+            onclone(clonedDocument) {
+                const clonedPageShell = clonedDocument.querySelector(
+                    ".page-shell"
+                );
+                const clonedResult = clonedDocument.querySelector(
+                    "[data-result-export]"
+                );
+                if (!clonedResult) return;
+
+                if (clonedPageShell) {
+                    clonedPageShell.style.overflow = "visible";
+                }
+                clonedResult.style.width = "1120px";
+                clonedResult.style.maxWidth = "none";
+                clonedResult.style.margin = "0";
+                clonedResult
+                    .querySelectorAll(
+                        ".table-scroll, .preference-table-scroll"
+                    )
+                    .forEach((container) => {
+                        container.scrollLeft = 0;
+                        container.style.overflow = "visible";
+                    });
+            },
+        });
+        const imageBlob = await canvasToBlob(canvas);
+        const imageUrl = URL.createObjectURL(imageBlob);
+        const downloadLink = document.createElement("a");
+
+        downloadLink.href = imageUrl;
+        downloadLink.download = getResultImageFileName();
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
+        window.setTimeout(() => URL.revokeObjectURL(imageUrl), 1000);
+        showToast("命盘图片已保存");
+    } catch (error) {
+        console.error("保存命盘图片失败", error);
+        showToast("图片生成失败，请稍后重试");
+    } finally {
+        isSavingImage.value = false;
+    }
+}
+
 </script>
 
 <template>
     <div class="page-shell">
+        <Transition name="toast">
+            <div
+                v-if="toastMessage"
+                class="toast-message"
+                role="status"
+                aria-live="polite"
+            >
+                {{ toastMessage }}
+            </div>
+        </Transition>
+
+        <button
+            ref="quickReferenceTrigger"
+            type="button"
+            class="quick-reference-trigger"
+            aria-label="打开速查表"
+            aria-haspopup="dialog"
+            aria-controls="quick-reference-dialog"
+            :aria-expanded="isQuickReferenceOpen"
+            @click="openQuickReference"
+        >
+            速查
+        </button>
+
         <header class="hero">
             <p class="eyebrow">传统历法 · 四柱排盘</p>
             <h1>五行八字</h1>
@@ -188,7 +437,7 @@ function calculate() {
                         @click="calculate"
                     >
                         <span>开始测算</span>
-                        <span aria-hidden="true">→</span>
+                        <span aria-hidden="true">↓</span>
                     </button>
                 </div>
 
@@ -200,13 +449,31 @@ function calculate() {
                 </p>
             </section>
 
-            <section v-if="result" class="result-section" aria-live="polite">
+            <section
+                v-if="result"
+                ref="resultSection"
+                class="result-section"
+                aria-live="polite"
+                data-result-export
+            >
                 <div class="result-heading">
-                    <div>
+                    <div class="result-heading-top">
                         <p class="eyebrow">命盘结果</p>
-                        <h2>{{ result.bazi }}</h2>
+                        <button
+                            type="button"
+                            class="save-image-button"
+                            :disabled="isSavingImage"
+                            :aria-busy="isSavingImage"
+                            data-html2canvas-ignore="true"
+                            @click="saveResultAsImage"
+                        >
+                            {{ isSavingImage ? "生成中…" : "保存图片" }}
+                        </button>
                     </div>
-                    <p class="solar-date">公历 {{ result.dateText }}</p>
+                    <div class="result-heading-main">
+                        <h2>{{ result.bazi }}</h2>
+                        <p class="solar-date">公历 {{ result.dateText }}</p>
+                    </div>
                 </div>
 
                 <div class="table-scroll">
@@ -240,7 +507,13 @@ function calculate() {
                                     :key="key"
                                     class="star-cell"
                                 >
-                                    {{ result.pillars[key].mainStar }}
+                                    {{ result.pillars[key].mainStar }}<span
+                                        v-if="result.pillars[key].stem.tenGod"
+                                        >-{{
+                                            result.pillars[key].stem.tenGod
+                                                .seasonalState
+                                        }}</span
+                                    >
                                 </td>
                             </tr>
                             <tr>
@@ -308,7 +581,11 @@ function calculate() {
                                             >
                                             <span>-{{ hiddenStem.polarity }}</span>
                                         </span>
-                                        <small>{{ hiddenStem.tenGod.name }}</small>
+                                        <small
+                                            >{{ hiddenStem.tenGod.name }}-{{
+                                                hiddenStem.tenGod.seasonalState
+                                            }}</small
+                                        >
                                     </span>
                                 </td>
                             </tr>
@@ -319,8 +596,24 @@ function calculate() {
                 <div class="summary-grid">
                     <article class="summary-card day-master-card">
                         <span class="summary-kicker">日主</span>
-                        <h3>{{ result.dayMaster }}</h3>
-                        <p>以日柱天干为命盘核心，推算其余干支的十神关系。</p>
+                        <div class="day-master-row">
+                            <h3>{{ result.dayMaster }}</h3>
+                            <span class="month-command">
+                                月令：{{ result.monthCommand.branch }}（{{
+                                    result.monthCommand.season
+                                }}·{{ result.monthCommand.element }}）
+                            </span>
+                            <span
+                                v-if="result.dayMasterCommandStatus"
+                                class="command-status"
+                                :class="
+                                    result.dayMasterCommandStatus === '得令'
+                                        ? 'command-favorable'
+                                        : 'command-unfavorable'
+                                "
+                                >{{ result.dayMasterCommandStatus }}</span
+                            >
+                        </div>
                     </article>
 
                     <article class="summary-card">
@@ -419,10 +712,331 @@ function calculate() {
                             格局结果按天干与藏干中的十神共现作简化归纳；实际吉凶仍需结合全局平衡、五行喜忌及具体命局判断。
                         </p>
                     </article>
+
+                    <article class="summary-card preference-card">
+                        <div class="card-title-row">
+                            <h3>喜忌余项</h3>
+                        </div>
+
+                        <div class="preference-table-scroll">
+                            <table class="preference-table">
+                                <caption class="sr-only">
+                                    日主五行旺相休囚死对应的八卦、方位、季节和颜色
+                                </caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">旺克</th>
+                                        <th scope="col">八卦（卦名/卦象）</th>
+                                        <th scope="col">方位</th>
+                                        <th scope="col">季节</th>
+                                        <th scope="col">颜色</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="item in result.preferenceItems"
+                                        :key="item.state"
+                                    >
+                                        <th
+                                            scope="row"
+                                            :class="elementClassNames[item.element]"
+                                        >
+                                            <span class="preference-state">{{
+                                                item.state
+                                            }}</span>
+                                        </th>
+                                        <td>{{ item.bagua }}</td>
+                                        <td>{{ item.direction }}</td>
+                                        <td>{{ item.season }}</td>
+                                        <td>{{ item.color }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pattern-note preference-notes">
+                            <p>
+                                同我者为旺，我生者为相，生我者为休，克我者为囚，我克者为死。
+                            </p>
+                            <p>旺克仅供五行参考，需根据命盘具体分析。</p>
+                        </div>
+                    </article>
                 </div>
             </section>
         </main>
 
         <footer>五行八字排盘 · 结果仅供传统文化研究参考</footer>
+
+        <Teleport to="body">
+            <dialog
+                id="quick-reference-dialog"
+                ref="quickReferenceDialog"
+                class="quick-reference-dialog"
+                aria-modal="true"
+                aria-labelledby="quick-reference-title"
+                aria-describedby="quick-reference-description"
+                @cancel.prevent="closeQuickReference"
+                @close="handleQuickReferenceClosed"
+                @click="handleQuickReferenceBackdrop"
+            >
+                <div class="quick-reference-panel">
+                    <header class="quick-reference-header">
+                        <div>
+                            <p class="eyebrow">五行 · 十神 · 格局</p>
+                            <h2 id="quick-reference-title">命理速查</h2>
+                        </div>
+                        <button
+                            ref="quickReferenceCloseButton"
+                            type="button"
+                            class="quick-reference-close"
+                            aria-label="关闭速查表"
+                            @click="closeQuickReference"
+                        >
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </header>
+
+                    <div class="quick-reference-body">
+                        <p
+                            id="quick-reference-description"
+                            class="quick-reference-scroll-tip"
+                        >
+                            每张表均可左右滑动查看完整内容，滑动时分类列保持可见。
+                        </p>
+
+                        <section
+                            class="quick-reference-section"
+                            aria-labelledby="wuxing-reference-title"
+                        >
+                            <h3 id="wuxing-reference-title">
+                                五行全息对应表
+                            </h3>
+                            <div
+                                class="quick-reference-table-scroll"
+                                role="region"
+                                aria-label="五行全息对应表，可横向滚动查看"
+                                tabindex="0"
+                            >
+                                <table
+                                    class="quick-reference-table quick-reference-table-wuxing"
+                                >
+                                    <caption class="sr-only">
+                                        五行全息对应表
+                                    </caption>
+                                    <colgroup>
+                                        <col class="quick-col-category" />
+                                        <col
+                                            v-for="element in QUICK_REFERENCE_ELEMENTS"
+                                            :key="element"
+                                            class="quick-col-element"
+                                        />
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">内容分类</th>
+                                            <th
+                                                v-for="element in QUICK_REFERENCE_ELEMENTS"
+                                                :key="element"
+                                                scope="col"
+                                                :class="
+                                                    elementClassNames[element]
+                                                "
+                                            >
+                                                {{ element }}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            v-for="row in WUXING_REFERENCE_ROWS"
+                                            :key="row.category"
+                                        >
+                                            <th scope="row">
+                                                {{ row.category }}
+                                            </th>
+                                            <td
+                                                v-for="element in QUICK_REFERENCE_ELEMENTS"
+                                                :key="element"
+                                            >
+                                                <span
+                                                    v-for="(
+                                                        line, lineIndex
+                                                    ) in getReferenceCellLines(
+                                                        row.values[element]
+                                                    )"
+                                                    :key="`${row.category}-${element}-${lineIndex}`"
+                                                    class="quick-reference-cell-line"
+                                                >
+                                                    {{ line }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section
+                            class="quick-reference-section"
+                            aria-labelledby="ten-god-reference-title"
+                        >
+                            <h3 id="ten-god-reference-title">十神表</h3>
+                            <div
+                                class="quick-reference-table-scroll"
+                                role="region"
+                                aria-label="十神表，可横向滚动查看"
+                                tabindex="0"
+                            >
+                                <table
+                                    class="quick-reference-table quick-reference-table-ten-gods"
+                                >
+                                    <caption class="sr-only">十神表</caption>
+                                    <colgroup>
+                                        <col class="quick-col-category" />
+                                        <col class="quick-col-names" />
+                                        <col class="quick-col-description" />
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">类别</th>
+                                            <th scope="col">
+                                                十神名称（同阴阳）
+                                            </th>
+                                            <th scope="col">
+                                                通俗比喻（一句话听懂）
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            v-for="row in TEN_GOD_REFERENCE_ROWS"
+                                            :key="row.category"
+                                        >
+                                            <th scope="row">
+                                                {{ row.category }}（{{
+                                                    row.relation
+                                                }}）
+                                            </th>
+                                            <td>
+                                                <span
+                                                    v-for="item in row.names"
+                                                    :key="item.name"
+                                                    class="quick-reference-cell-line"
+                                                >
+                                                    <strong>{{
+                                                        item.name
+                                                    }}</strong>{{
+                                                        item.qualifier
+                                                    }}
+                                                </span>
+                                            </td>
+                                            <td
+                                                class="quick-reference-description-cell"
+                                            >
+                                                <span
+                                                    v-for="item in row.analogies"
+                                                    :key="item.name"
+                                                    class="quick-reference-cell-line"
+                                                >
+                                                    <strong>{{
+                                                        item.name
+                                                    }}</strong>{{ item.text }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section
+                            class="quick-reference-section"
+                            aria-labelledby="pattern-reference-title"
+                        >
+                            <h3 id="pattern-reference-title">格局组合表</h3>
+                            <div
+                                class="quick-reference-table-scroll"
+                                role="region"
+                                aria-label="格局组合表，可横向滚动查看"
+                                tabindex="0"
+                            >
+                                <table
+                                    class="quick-reference-table quick-reference-table-patterns"
+                                >
+                                    <caption class="sr-only">
+                                        格局组合表
+                                    </caption>
+                                    <colgroup>
+                                        <col class="quick-col-type" />
+                                        <col class="quick-col-name" />
+                                        <col class="quick-col-ten-gods" />
+                                        <col class="quick-col-meaning" />
+                                        <col class="quick-col-tendency" />
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">组合类型</th>
+                                            <th scope="col">
+                                                组合名称（术语）
+                                            </th>
+                                            <th scope="col">
+                                                构成十神（A + B）
+                                            </th>
+                                            <th scope="col">
+                                                通俗含义（一句话）
+                                            </th>
+                                            <th scope="col">吉凶倾向</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template
+                                            v-for="group in PATTERN_REFERENCE_GROUPS"
+                                            :key="group.type"
+                                        >
+                                            <tr
+                                                v-for="(
+                                                    row, rowIndex
+                                                ) in group.rows"
+                                                :key="`${group.type}-${row.name}`"
+                                            >
+                                                <th
+                                                    v-if="rowIndex === 0"
+                                                    class="quick-reference-group-cell"
+                                                    scope="rowgroup"
+                                                    :rowspan="group.rows.length"
+                                                >
+                                                    {{ group.type }}
+                                                </th>
+                                                <th scope="row">
+                                                    {{ row.name }}
+                                                </th>
+                                                <td>{{ row.tenGods }}</td>
+                                                <td
+                                                    class="quick-reference-description-cell"
+                                                >
+                                                    {{ row.meaning }}
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        class="quick-reference-tendency"
+                                                        :class="
+                                                            getTendencyClass(
+                                                                row.tendency
+                                                            )
+                                                        "
+                                                    >
+                                                        {{ row.tendency }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </dialog>
+        </Teleport>
     </div>
 </template>

@@ -1,7 +1,13 @@
 import lunisolar from "lunisolar";
 import { detectBaziPatterns, groupBaziPatterns } from "./patterns";
+import { getPreferenceItems } from "./preferences";
+import {
+    getDayMasterCommandStatus,
+    getMonthCommand,
+    getSeasonalState,
+} from "./season";
 
-export const YEAR_RANGE = Object.freeze({ min: 1910, max: 2199 });
+export const YEAR_RANGE = Object.freeze({ min: 1901, max: 2099 });
 export const LUNAR_SUPPORTED_RANGE = Object.freeze({ min: 1901, max: 2099 });
 export const ELEMENTS = Object.freeze(["木", "火", "土", "金", "水"]);
 export const PILLAR_KEYS = Object.freeze(["year", "month", "day", "hour"]);
@@ -122,11 +128,20 @@ function getTenGodCounts(char8) {
     return counts;
 }
 
-function createPillar(char8, key, dayStem, gender) {
+function createPillar(char8, key, dayStem, gender, monthElement) {
     const pillar = char8[key];
     const stemAttributes = getStemAttributes(pillar.stem);
     const stemTenGod =
-        key === "day" ? null : getTenGodDetail(dayStem, pillar.stem);
+        key === "day"
+            ? null
+            : {
+                  ...getTenGodDetail(dayStem, pillar.stem),
+                  element: stemAttributes.element,
+                  seasonalState: getSeasonalState(
+                      stemAttributes.element,
+                      monthElement,
+                  ),
+              };
 
     return {
         key,
@@ -145,9 +160,17 @@ function createPillar(char8, key, dayStem, gender) {
             element: pillar.branch.e5.name,
         },
         hiddenStems: pillar.branch.hiddenStems.map((stem) => {
-            const tenGod = getTenGodDetail(dayStem, stem);
+            const attributes = getStemAttributes(stem);
+            const tenGod = {
+                ...getTenGodDetail(dayStem, stem),
+                element: attributes.element,
+                seasonalState: getSeasonalState(
+                    attributes.element,
+                    monthElement,
+                ),
+            };
             return {
-                ...getStemAttributes(stem),
+                ...attributes,
                 display: formatStem(stem),
                 tenGod,
             };
@@ -167,10 +190,21 @@ export function calculateBazi({ year, month, day, hour, gender }) {
     const date = lunisolar(dateText);
     const { char8, lunar } = date;
     const dayStem = char8.day.stem;
+    const monthCommand = getMonthCommand(char8.month.branch.toString());
+    const dayMasterCommandStatus = getDayMasterCommandStatus(
+        dayStem.e5,
+        monthCommand.element,
+    );
     const pillars = Object.fromEntries(
         PILLAR_KEYS.map((key) => [
             key,
-            createPillar(char8, key, dayStem, gender),
+            createPillar(
+                char8,
+                key,
+                dayStem,
+                gender,
+                monthCommand.element,
+            ),
         ]),
     );
 
@@ -192,6 +226,9 @@ export function calculateBazi({ year, month, day, hour, gender }) {
         dateText,
         bazi: date.format("cY cM cD cH"),
         dayMaster: formatStem(dayStem),
+        preferenceItems: getPreferenceItems(dayStem.e5),
+        monthCommand,
+        dayMasterCommandStatus,
         pillars,
         elementCounts: getElementCounts(char8),
         tenGodCounts,

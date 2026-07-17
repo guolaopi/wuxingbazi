@@ -95,9 +95,23 @@ describe('calculateBazi', () => {
     expect(result.pillars.year.stem.display).toBe('壬-水-阳')
     expect(result.pillars.month.stem.display).toBe('丁-火-阴')
     expect(result.pillars.year.stem.tenGod.name).toBe('比肩')
+    expect(result.pillars.year.stem.tenGod.seasonalState).toBe('死')
+    expect(result.pillars.month.stem.tenGod.seasonalState).toBe('休')
     expect(result.pillars.day.stem.tenGod).toBeNull()
     expect(result.pillars.year.hiddenStems[0].tenGod.name).toBe('食神')
+    expect(result.pillars.year.hiddenStems[0].tenGod.seasonalState).toBe('囚')
     expect(result.dayMaster).toBe('壬-水-阳')
+    expect(result.monthCommand).toEqual({
+      branch: '未', lunarMonth: '六月', season: '季末', element: '土',
+    })
+    expect(result.dayMasterCommandStatus).toBe('失令')
+    expect(result.preferenceItems.map(({ state, element }) => [state, element])).toEqual([
+      ['旺', '水'],
+      ['相', '木'],
+      ['休', '金'],
+      ['囚', '土'],
+      ['死', '火'],
+    ])
     expect(result.pillars.year.hiddenStems.map(({ name }) => name)).toEqual(['甲', '丙', '戊'])
     expect(result.elementCounts).toEqual({
       木: { total: 3, heavenlyStems: 0, hiddenStems: 3 },

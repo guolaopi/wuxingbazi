@@ -21,7 +21,7 @@ export function getInitialFormValues(search = "", now = new Date()) {
         YEAR_RANGE.max,
     );
     const defaultMonth = now.getMonth() + 1;
-    const defaultHour = Math.min(Math.max(now.getHours(), 1), 23);
+    const defaultHour = Math.min(Math.max(now.getHours(), 0), 23);
     const year = parseInteger(
         params,
         "_year",
@@ -33,7 +33,7 @@ export function getInitialFormValues(search = "", now = new Date()) {
     const maximumDay = daysInMonth(year, month);
     const defaultDay = Math.min(now.getDate(), maximumDay);
     const day = parseInteger(params, "_day", 1, maximumDay, defaultDay);
-    const hour = parseInteger(params, "_hour", 1, 23, defaultHour);
+    const hour = parseInteger(params, "_hour", 0, 23, defaultHour);
 
     return {
         gender: parseGender(params),
@@ -43,4 +43,3 @@ export function getInitialFormValues(search = "", now = new Date()) {
         hour,
     };
 }
-

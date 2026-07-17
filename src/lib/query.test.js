@@ -44,5 +44,9 @@ describe('URL 初始参数', () => {
     expect(getInitialFormValues('?_gender=0', NOW).gender).toBe('female')
     expect(getInitialFormValues('?_gender=2', NOW).gender).toBe('female')
   })
-})
 
+  it('允许 0 时并在午夜使用当前 0 时作为默认值', () => {
+    expect(getInitialFormValues('?_hour=0', NOW).hour).toBe(0)
+    expect(getInitialFormValues('', new Date(2025, 10, 30, 0, 15)).hour).toBe(0)
+  })
+})
