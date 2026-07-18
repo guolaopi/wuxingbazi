@@ -314,7 +314,7 @@ export const PATTERN_REFERENCE_GROUPS = deepFreeze([
                 tendency: "大吉",
             },
             {
-                name: "食神制杀（已列）",
+                name: "食神制杀",
                 tenGods: "食神 + 七杀",
                 meaning: "智取压力",
                 tendency: "吉",
