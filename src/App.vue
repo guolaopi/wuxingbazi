@@ -805,7 +805,6 @@ async function saveResultAsImage() {
                 <div class="quick-reference-panel">
                     <header class="quick-reference-header">
                         <div>
-                            <p class="eyebrow">五行 · 十神 · 格局</p>
                             <h2 id="quick-reference-title">命理速查</h2>
                         </div>
                         <button
@@ -831,18 +830,18 @@ async function saveResultAsImage() {
                             class="quick-reference-section"
                             aria-labelledby="wuxing-reference-title"
                         >
-                            <h3 id="wuxing-reference-title">五行全息对应表</h3>
+                            <h3 id="wuxing-reference-title">五行全息表</h3>
                             <div
                                 class="quick-reference-table-scroll"
                                 role="region"
-                                aria-label="五行全息对应表，可横向滚动查看"
+                                aria-label="五行全息表，可横向滚动查看"
                                 tabindex="0"
                             >
                                 <table
                                     class="quick-reference-table quick-reference-table-wuxing"
                                 >
                                     <caption class="sr-only">
-                                        五行全息对应表
+                                        五行全息表
                                     </caption>
                                     <colgroup>
                                         <col class="quick-col-category" />
@@ -1072,7 +1071,7 @@ async function saveResultAsImage() {
                                 tabindex="0"
                             >
                                 <table
-                                    class="quick-reference-table quick-reference-table-patterns"
+                                    class="quick-reference-table quick-reference-table-tian-gan-wu-he"
                                 >
                                     <thead>
                                         <tr>
@@ -1099,19 +1098,18 @@ async function saveResultAsImage() {
                                         </tr>
                                     </tbody>
                                 </table>
-
-                                <ol class="quick-reference-ol">
-                                    <li>
-                                        合化条件：双方力量相近，且月令支持合化产物，否则为“羁绊”
-                                    </li>
-                                    <li>
-                                        合身位置：仅限月干或时干与日主相合，年干不算合身
-                                    </li>
-                                    <li>
-                                        合身影响：代表你与某种十神有天然粘性，吉凶需结合喜忌判断
-                                    </li>
-                                </ol>
                             </div>
+                            <ol class="quick-reference-ol">
+                                <li>
+                                    合化条件：双方力量相近，且月令支持合化产物，否则为“羁绊”
+                                </li>
+                                <li>
+                                    合身位置：仅限月干或时干与日主相合，年干不算合身
+                                </li>
+                                <li>
+                                    合身影响：代表你与某种十神有天然粘性，吉凶需结合喜忌判断
+                                </li>
+                            </ol>
                         </section>
 
                         <section
@@ -1128,7 +1126,7 @@ async function saveResultAsImage() {
                                 tabindex="0"
                             >
                                 <table
-                                    class="quick-reference-table quick-reference-table-patterns"
+                                    class="quick-reference-table quick-reference-table-di-zhi-he-gong"
                                 >
                                     <thead>
                                         <tr>
@@ -1146,26 +1144,25 @@ async function saveResultAsImage() {
                                             v-for="row in BRANCH_PAIR_ROWS"
                                             :key="`${row.day}-${row.partner}`"
                                         >
-                                            <td>{{ row.day }}</td>
+                                            <th>{{ row.day }}</th>
                                             <td>{{ row.partner }}</td>
                                             <td>{{ row.result }}</td>
                                             <td>{{ row.interpretation }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
-
-                                <ol class="quick-reference-ol">
-                                    <li>
-                                        位置优先：只有月支或时支与日支相合，才算“合日支”，年支合日支为“远合”，力量减半
-                                    </li>
-                                    <li>
-                                        化气需月令支持：六合能否“化气”，需看月令是否支持。合化产物的五行，必须得到月令的生扶，不能受月令克制，否则就是只合不化（关系密切，但各自的五行属性没变）
-                                    </li>
-                                    <li>
-                                        合不一定吉：合日支代表“绑定”，吉凶取决于日支是喜神还是忌神
-                                    </li>
-                                </ol>
                             </div>
+                            <ol class="quick-reference-ol">
+                                <li>
+                                    位置优先：只有月支或时支与日支相合，才算“合日支”，年支合日支为“远合”，力量减半
+                                </li>
+                                <li>
+                                    化气需月令支持：六合能否“化气”，需看月令是否支持。合化产物的五行，必须得到月令的生扶，不能受月令克制，否则就是只合不化（关系密切，但各自的五行属性没变）
+                                </li>
+                                <li>
+                                    合不一定吉：合日支代表“绑定”，吉凶取决于日支是喜神还是忌神
+                                </li>
+                            </ol>
                         </section>
 
                         <section
@@ -1182,7 +1179,7 @@ async function saveResultAsImage() {
                                 tabindex="0"
                             >
                                 <table
-                                    class="quick-reference-table quick-reference-table-patterns"
+                                    class="quick-reference-table quick-reference-table-di-zhi-san-he"
                                 >
                                     <thead>
                                         <tr>
@@ -1199,7 +1196,7 @@ async function saveResultAsImage() {
                                             v-for="row in THREE_HARMONY_ROWS"
                                             :key="row.name"
                                         >
-                                            <td>{{ row.name }}</td>
+                                            <th>{{ row.name }}</th>
                                             <td>{{ row.members }}</td>
                                             <td>{{ row.result }}</td>
                                             <td>{{ row.core }}</td>
@@ -1224,7 +1221,7 @@ async function saveResultAsImage() {
                                 tabindex="0"
                             >
                                 <table
-                                    class="quick-reference-table quick-reference-table-patterns"
+                                    class="quick-reference-table quick-reference-table-di-zhi-san-hui"
                                 >
                                     <thead>
                                         <tr>
@@ -1241,7 +1238,7 @@ async function saveResultAsImage() {
                                             v-for="row in THREE_MEETING_ROWS"
                                             :key="row.name"
                                         >
-                                            <td>{{ row.name }}</td>
+                                            <th>{{ row.name }}</th>
                                             <td>{{ row.members }}</td>
                                             <td>{{ row.result }}</td>
                                             <td>{{ row.season }}</td>

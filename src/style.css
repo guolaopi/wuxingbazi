@@ -1490,6 +1490,10 @@ footer {
 
 .quick-reference-table-wuxing tbody th:first-child,
 .quick-reference-table-ten-gods tbody th:first-child,
+.quick-reference-table-tian-gan-wu-he tbody th:first-child,
+.quick-reference-table-di-zhi-he-gong tbody th:first-child,
+.quick-reference-table-di-zhi-san-he tbody th:first-child,
+.quick-reference-table-di-zhi-san-hui tbody th:first-child,
 .quick-reference-table-patterns .quick-reference-group-cell {
     position: sticky;
     z-index: 3;
