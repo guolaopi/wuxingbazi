@@ -328,3 +328,226 @@ export const PATTERN_REFERENCE_GROUPS = deepFreeze([
         ],
     },
 ]);
+
+export const STEM_COMBINATION_ROWS = deepFreeze([
+    {
+        type: "甲己合土（甲合己）",
+        dayMaster: "己土（阴）",
+        partner: "甲木（阳）",
+        result: "土",
+        interpretation:
+            "规则、权威、丈夫、事业与你天然绑定，你本能地“认同秩序”。",
+        fortune: "日主弱则得助，日主强则被羁绊",
+    },
+    {
+        type: "甲己合土（己合甲）",
+        dayMaster: "甲木（阳）",
+        partner: "己土（阴）",
+        result: "土",
+        interpretation: "你主动包容规则或伴侣，愿意为稳定付出。",
+        fortune: "日主强则化土成功，日主弱则反被拖累",
+    },
+    {
+        type: "乙庚合金（庚合乙）",
+        dayMaster: "乙木（阴）",
+        partner: "庚金（阳）",
+        result: "金",
+        interpretation: "你容易被强势的人或权威吸引，为正义感而妥协。",
+        fortune: "身强则合化得权，身弱则被克",
+    },
+    {
+        type: "乙庚合金（乙合庚）",
+        dayMaster: "庚金（阳）",
+        partner: "乙木（阴）",
+        result: "金",
+        interpretation: "你以柔克刚，用智慧或情商收服外界规则。",
+        fortune: "金旺则成器，木旺则合而不化",
+    },
+    {
+        type: "丙辛合水（辛合丙）",
+        dayMaster: "丙火（阳）",
+        partner: "辛金（阴）",
+        result: "水",
+        interpretation: "你为情感或利益而降温，容易在关系中妥协锋芒。",
+        fortune: "化水则智，不化则纠结",
+    },
+    {
+        type: "丙辛合水（丙合辛）",
+        dayMaster: "辛金（阴）",
+        partner: "丙火（阳）",
+        result: "水",
+        interpretation: "你容易被才华或热情感染，甘愿为欣赏而放下自我。",
+        fortune: "水旺则通，火旺则争",
+    },
+    {
+        type: "丁壬合木（壬合丁）",
+        dayMaster: "丁火（阴）",
+        partner: "壬水（阳）",
+        result: "木",
+        interpretation: "你与外界规则或男性之间有温柔的羁绊，为理想而妥协。",
+        fortune: "木旺则仁，水旺则浮",
+    },
+    {
+        type: "丁壬合木（丁合壬）",
+        dayMaster: "壬水（阳）",
+        partner: "丁火（阴）",
+        result: "木",
+        interpretation: "你主动用理性或情感驯化规则，适合管理与创意结合。",
+        fortune: "木旺则达，火旺则躁",
+    },
+    {
+        type: "戊癸合火（癸合戊）",
+        dayMaster: "戊土（阳）",
+        partner: "癸水（阴）",
+        result: "火",
+        interpretation: "你在责任与欲望之间拉扯，为稳定或财富付出情感。",
+        fortune: "火旺则明，土旺则滞",
+    },
+    {
+        type: "戊癸合火（戊合癸）",
+        dayMaster: "癸水（阴）",
+        partner: "戊土（阳）",
+        result: "火",
+        interpretation: "你容易为现实利益或安全感而合，需要警惕因财失义。",
+        fortune: "火旺则贵，水旺则孤",
+    },
+]);
+
+export const BRANCH_PAIR_ROWS = deepFreeze([
+    {
+        day: "子",
+        partner: "丑",
+        result: "土",
+        interpretation:
+            "你与伴侣之间容易黏在一起，但也可能因过度依赖而失去自我。",
+    },
+    {
+        day: "丑",
+        partner: "子",
+        result: "土",
+        interpretation: "你愿意为婚姻付出实际资源，但也容易变得保守。",
+    },
+    {
+        day: "寅",
+        partner: "亥",
+        result: "木",
+        interpretation: "伴侣是你的引路人，你们的关系像师生，共同成长。",
+    },
+    {
+        day: "亥",
+        partner: "寅",
+        result: "木",
+        interpretation: "你主动为关系注入智慧和策略，婚姻中斗而不破。",
+    },
+    {
+        day: "卯",
+        partner: "戌",
+        result: "火",
+        interpretation: "关系中有强烈的化学反应，但吵架时也很激烈。",
+    },
+    {
+        day: "戌",
+        partner: "卯",
+        result: "火",
+        interpretation: "你为关系注入热情和行动力，但也容易因太主动而失衡。",
+    },
+    {
+        day: "辰",
+        partner: "酉",
+        result: "金",
+        interpretation:
+            "婚姻讲规则、讲分工，像商业合作伙伴，效率高但感情偏冷。",
+    },
+    {
+        day: "酉",
+        partner: "辰",
+        result: "金",
+        interpretation: "你主导关系节奏，习惯用讲道理代替谈感情。",
+    },
+    {
+        day: "巳",
+        partner: "申",
+        result: "水",
+        interpretation: "夫妻之间斗智斗勇，但互相欣赏对方的聪明。",
+    },
+    {
+        day: "申",
+        partner: "巳",
+        result: "水",
+        interpretation: "你善于在关系中制造惊喜和变化，但也容易让对方跟不上。",
+    },
+    {
+        day: "午",
+        partner: "未",
+        result: "土/火",
+        interpretation: "你为婚姻付出大量情感，容易燃烧自己照亮对方。",
+    },
+    {
+        day: "未",
+        partner: "午",
+        result: "土/火",
+        interpretation: "你习惯用照顾来表达爱，但对方可能觉得你控制欲强。",
+    },
+]);
+
+export const THREE_HARMONY_ROWS = deepFreeze([
+    {
+        name: "申子辰合水",
+        members: "申 + 子 + 辰",
+        result: "水",
+        core: "子（水帝旺）",
+        interpretation: "智慧、流动、财源广进，但也代表漂泊不定。",
+    },
+    {
+        name: "亥卯未合木",
+        members: "亥 + 卯 + 未",
+        result: "木",
+        core: "卯（木帝旺）",
+        interpretation: "生长、扩张、人脉壮大，但也容易过度乐观。",
+    },
+    {
+        name: "寅午戌合火",
+        members: "寅 + 午 + 戌",
+        result: "火",
+        core: "午（火帝旺）",
+        interpretation: "热情、名声、爆发力强，但也容易急躁冲动。",
+    },
+    {
+        name: "巳酉丑合金",
+        members: "巳 + 酉 + 丑",
+        result: "金",
+        core: "酉（金帝旺）",
+        interpretation: "决断、变革、权威确立，但也容易冷酷偏执。",
+    },
+]);
+
+export const THREE_MEETING_ROWS = deepFreeze([
+    {
+        name: "寅卯辰会木",
+        members: "寅 + 卯 + 辰",
+        result: "木",
+        season: "春季（正二三月）",
+        interpretation: "团队、家族、根基雄厚，但也容易固执排外。",
+    },
+    {
+        name: "巳午未会火",
+        members: "巳 + 午 + 未",
+        result: "火",
+        season: "夏季（四五六月）",
+        interpretation: "名声、舞台、曝光度高，但也容易树大招风。",
+    },
+    {
+        name: "申酉戌会金",
+        members: "申 + 酉 + 戌",
+        result: "金",
+        season: "秋季（七八九月）",
+        interpretation: "权力、制度、执行力强，但也容易刻薄寡恩。",
+    },
+    {
+        name: "亥子丑会水",
+        members: "亥 + 子 + 丑",
+        result: "水",
+        season: "冬季（十十一十二月）",
+        interpretation: "资源、人脉、暗流涌动，但也容易沉溺安逸。",
+    },
+]);

@@ -12,6 +12,10 @@ import {
     QUICK_REFERENCE_ELEMENTS,
     TEN_GOD_REFERENCE_ROWS,
     WUXING_REFERENCE_ROWS,
+    STEM_COMBINATION_ROWS,
+    BRANCH_PAIR_ROWS,
+    THREE_HARMONY_ROWS,
+    THREE_MEETING_ROWS,
 } from "./lib/quick-reference";
 import { getInitialFormValues } from "./lib/query";
 
@@ -212,7 +216,8 @@ function handleQuickReferenceBackdrop(event) {
 }
 
 function handleQuickReferenceClosed() {
-    const returnFocus = quickReferenceReturnFocus || quickReferenceTrigger.value;
+    const returnFocus =
+        quickReferenceReturnFocus || quickReferenceTrigger.value;
 
     isQuickReferenceOpen.value = false;
     quickReferenceReturnFocus = null;
@@ -271,9 +276,8 @@ async function saveResultAsImage() {
             useCORS: true,
             windowWidth: exportViewportWidth,
             onclone(clonedDocument) {
-                const clonedPageShell = clonedDocument.querySelector(
-                    ".page-shell"
-                );
+                const clonedPageShell =
+                    clonedDocument.querySelector(".page-shell");
                 const clonedResult = clonedDocument.querySelector(
                     "[data-result-export]"
                 );
@@ -286,9 +290,7 @@ async function saveResultAsImage() {
                 clonedResult.style.maxWidth = "none";
                 clonedResult.style.margin = "0";
                 clonedResult
-                    .querySelectorAll(
-                        ".table-scroll, .preference-table-scroll"
-                    )
+                    .querySelectorAll(".table-scroll, .preference-table-scroll")
                     .forEach((container) => {
                         container.scrollLeft = 0;
                         container.style.overflow = "visible";
@@ -313,7 +315,6 @@ async function saveResultAsImage() {
         isSavingImage.value = false;
     }
 }
-
 </script>
 
 <template>
@@ -507,7 +508,8 @@ async function saveResultAsImage() {
                                     :key="key"
                                     class="star-cell"
                                 >
-                                    {{ result.pillars[key].mainStar }}<span
+                                    {{ result.pillars[key].mainStar
+                                    }}<span
                                         v-if="result.pillars[key].stem.tenGod"
                                         >-{{
                                             result.pillars[key].stem.tenGod
@@ -520,12 +522,17 @@ async function saveResultAsImage() {
                                 <th scope="row">天干</th>
                                 <td v-for="key in PILLAR_KEYS" :key="key">
                                     <strong class="stem-detail">
-                                        <span>{{ result.pillars[key].stem.name }}-</span>
+                                        <span
+                                            >{{
+                                                result.pillars[key].stem.name
+                                            }}-</span
+                                        >
                                         <span
                                             class="element-mark"
                                             :class="
                                                 elementClassNames[
-                                                    result.pillars[key].stem.element
+                                                    result.pillars[key].stem
+                                                        .element
                                                 ]
                                             "
                                             >{{
@@ -534,7 +541,8 @@ async function saveResultAsImage() {
                                         >
                                         <span
                                             >-{{
-                                                result.pillars[key].stem.polarity
+                                                result.pillars[key].stem
+                                                    .polarity
                                             }}</span
                                         >
                                     </strong>
@@ -550,7 +558,8 @@ async function saveResultAsImage() {
                                         class="element-mark"
                                         :class="
                                             elementClassNames[
-                                                result.pillars[key].branch.element
+                                                result.pillars[key].branch
+                                                    .element
                                             ]
                                         "
                                         >{{
@@ -579,7 +588,11 @@ async function saveResultAsImage() {
                                                 "
                                                 >{{ hiddenStem.element }}</span
                                             >
-                                            <span>-{{ hiddenStem.polarity }}</span>
+                                            <span
+                                                >-{{
+                                                    hiddenStem.polarity
+                                                }}</span
+                                            >
                                         </span>
                                         <small
                                             >{{ hiddenStem.tenGod.name }}-{{
@@ -638,7 +651,8 @@ async function saveResultAsImage() {
                                             .heavenlyStems
                                     }}</strong
                                     >个，藏干<strong class="count-value">{{
-                                        result.elementCounts[element].hiddenStems
+                                        result.elementCounts[element]
+                                            .hiddenStems
                                     }}</strong
                                     >个
                                 </span>
@@ -662,9 +676,13 @@ async function saveResultAsImage() {
                                 >
                                 <span class="ten-god-breakdown">
                                     <span v-for="name in names" :key="name">
-                                        {{ name }}总数<strong class="count-value">{{
-                                            result.tenGodCounts[category][name].total
-                                        }}</strong
+                                        {{ name }}总数<strong
+                                            class="count-value"
+                                            >{{
+                                                result.tenGodCounts[category][
+                                                    name
+                                                ].total
+                                            }}</strong
                                         >个，天干<strong class="count-value">{{
                                             result.tenGodCounts[category][name]
                                                 .heavenlyStems
@@ -685,9 +703,14 @@ async function saveResultAsImage() {
                             <h3>八字格局</h3>
                         </div>
 
-                        <div v-if="result.patterns.length" class="pattern-groups">
+                        <div
+                            v-if="result.patterns.length"
+                            class="pattern-groups"
+                        >
                             <section
-                                v-for="(patterns, category) in result.patternGroups"
+                                v-for="(
+                                    patterns, category
+                                ) in result.patternGroups"
                                 v-show="patterns.length"
                                 :key="category"
                                 class="pattern-group"
@@ -704,9 +727,7 @@ async function saveResultAsImage() {
                                 </ul>
                             </section>
                         </div>
-                        <p v-else class="pattern-empty">
-                            未发现常见格局组合。
-                        </p>
+                        <p v-else class="pattern-empty">未发现常见格局组合。</p>
 
                         <p class="pattern-note">
                             格局结果按天干与藏干中的十神共现作简化归纳；实际吉凶仍需结合全局平衡、五行喜忌及具体命局判断。
@@ -739,7 +760,9 @@ async function saveResultAsImage() {
                                     >
                                         <th
                                             scope="row"
-                                            :class="elementClassNames[item.element]"
+                                            :class="
+                                                elementClassNames[item.element]
+                                            "
                                         >
                                             <span class="preference-state">{{
                                                 item.state
@@ -808,9 +831,7 @@ async function saveResultAsImage() {
                             class="quick-reference-section"
                             aria-labelledby="wuxing-reference-title"
                         >
-                            <h3 id="wuxing-reference-title">
-                                五行全息对应表
-                            </h3>
+                            <h3 id="wuxing-reference-title">五行全息对应表</h3>
                             <div
                                 class="quick-reference-table-scroll"
                                 role="region"
@@ -890,7 +911,9 @@ async function saveResultAsImage() {
                                 <table
                                     class="quick-reference-table quick-reference-table-ten-gods"
                                 >
-                                    <caption class="sr-only">十神表</caption>
+                                    <caption class="sr-only">
+                                        十神表
+                                    </caption>
                                     <colgroup>
                                         <col class="quick-col-category" />
                                         <col class="quick-col-names" />
@@ -925,9 +948,8 @@ async function saveResultAsImage() {
                                                 >
                                                     <strong>{{
                                                         item.name
-                                                    }}</strong>{{
-                                                        item.qualifier
-                                                    }}
+                                                    }}</strong
+                                                    >{{ item.qualifier }}
                                                 </span>
                                             </td>
                                             <td
@@ -940,7 +962,8 @@ async function saveResultAsImage() {
                                                 >
                                                     <strong>{{
                                                         item.name
-                                                    }}</strong>{{ item.text }}
+                                                    }}</strong
+                                                    >{{ item.text }}
                                                 </span>
                                             </td>
                                         </tr>
@@ -1030,6 +1053,200 @@ async function saveResultAsImage() {
                                                 </td>
                                             </tr>
                                         </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section
+                            class="quick-reference-section"
+                            aria-labelledby="tian-gan-wu-he-reference-title"
+                        >
+                            <h3 id="tian-gan-wu-he-reference-title">
+                                天干五合表
+                            </h3>
+                            <div
+                                class="quick-reference-table-scroll"
+                                role="region"
+                                aria-label="天干五合表，可横向滚动查看"
+                                tabindex="0"
+                            >
+                                <table
+                                    class="quick-reference-table quick-reference-table-patterns"
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th>合身类型</th>
+                                            <th>日主（天干）</th>
+                                            <th>合身方（月/时干）</th>
+                                            <th>合化产物</th>
+                                            <th>通俗解读</th>
+                                            <th>吉凶倾向（视格局而定）</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr
+                                            v-for="row in STEM_COMBINATION_ROWS"
+                                            :key="row.type"
+                                        >
+                                            <th>{{ row.type }}</th>
+                                            <td>{{ row.dayMaster }}</td>
+                                            <td>{{ row.partner }}</td>
+                                            <td>{{ row.result }}</td>
+                                            <td>{{ row.interpretation }}</td>
+                                            <td>{{ row.fortune }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <ol class="quick-reference-ol">
+                                    <li>
+                                        合化条件：双方力量相近，且月令支持合化产物，否则为“羁绊”
+                                    </li>
+                                    <li>
+                                        合身位置：仅限月干或时干与日主相合，年干不算合身
+                                    </li>
+                                    <li>
+                                        合身影响：代表你与某种十神有天然粘性，吉凶需结合喜忌判断
+                                    </li>
+                                </ol>
+                            </div>
+                        </section>
+
+                        <section
+                            class="quick-reference-section"
+                            aria-labelledby="di-zhi-he-gong-reference-title"
+                        >
+                            <h3 id="di-zhi-he-gong-reference-title">
+                                地支合宫表
+                            </h3>
+                            <div
+                                class="quick-reference-table-scroll"
+                                role="region"
+                                aria-label="地支合宫表，可横向滚动查看"
+                                tabindex="0"
+                            >
+                                <table
+                                    class="quick-reference-table quick-reference-table-patterns"
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th>日支（夫妻宫）</th>
+                                            <th>合方（月支/时支）</th>
+                                            <th>合化产物</th>
+                                            <th>
+                                                对婚姻/内心的影响（通俗解读）
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr
+                                            v-for="row in BRANCH_PAIR_ROWS"
+                                            :key="`${row.day}-${row.partner}`"
+                                        >
+                                            <td>{{ row.day }}</td>
+                                            <td>{{ row.partner }}</td>
+                                            <td>{{ row.result }}</td>
+                                            <td>{{ row.interpretation }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <ol class="quick-reference-ol">
+                                    <li>
+                                        位置优先：只有月支或时支与日支相合，才算“合日支”，年支合日支为“远合”，力量减半
+                                    </li>
+                                    <li>
+                                        化气需月令支持：六合能否“化气”，需看月令是否支持。合化产物的五行，必须得到月令的生扶，不能受月令克制，否则就是只合不化（关系密切，但各自的五行属性没变）
+                                    </li>
+                                    <li>
+                                        合不一定吉：合日支代表“绑定”，吉凶取决于日支是喜神还是忌神
+                                    </li>
+                                </ol>
+                            </div>
+                        </section>
+
+                        <section
+                            class="quick-reference-section"
+                            aria-labelledby="di-zhi-san-he-reference-title"
+                        >
+                            <h3 id="di-zhi-san-he-reference-title">
+                                地支三合局
+                            </h3>
+                            <div
+                                class="quick-reference-table-scroll"
+                                role="region"
+                                aria-label="地支三合表，可横向滚动查看"
+                                tabindex="0"
+                            >
+                                <table
+                                    class="quick-reference-table quick-reference-table-patterns"
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th>三合局</th>
+                                            <th>组成地支（三个）</th>
+                                            <th>合化产物</th>
+                                            <th>中神（核心）</th>
+                                            <th>通俗解读</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr
+                                            v-for="row in THREE_HARMONY_ROWS"
+                                            :key="row.name"
+                                        >
+                                            <td>{{ row.name }}</td>
+                                            <td>{{ row.members }}</td>
+                                            <td>{{ row.result }}</td>
+                                            <td>{{ row.core }}</td>
+                                            <td>{{ row.interpretation }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section
+                            class="quick-reference-section"
+                            aria-labelledby="di-zhi-san-hui-reference-title"
+                        >
+                            <h3 id="di-zhi-san-hui-reference-title">
+                                地支三会局
+                            </h3>
+                            <div
+                                class="quick-reference-table-scroll"
+                                role="region"
+                                aria-label="地支三合表，可横向滚动查看"
+                                tabindex="0"
+                            >
+                                <table
+                                    class="quick-reference-table quick-reference-table-patterns"
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th>三会局</th>
+                                            <th>组成地支（三个）</th>
+                                            <th>合化产物</th>
+                                            <th>对应季节</th>
+                                            <th>通俗解读</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr
+                                            v-for="row in THREE_MEETING_ROWS"
+                                            :key="row.name"
+                                        >
+                                            <td>{{ row.name }}</td>
+                                            <td>{{ row.members }}</td>
+                                            <td>{{ row.result }}</td>
+                                            <td>{{ row.season }}</td>
+                                            <td>{{ row.interpretation }}</td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
